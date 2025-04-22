@@ -1,4 +1,4 @@
-# BanditBot TypeScript Discord Bot
+# BanditBot Qbox Discord Bot
 
 A specialized Discord bot built for FiveM QBox servers, providing comprehensive ticket management, player information tracking, and moderation tools integration with txAdmin.
 
