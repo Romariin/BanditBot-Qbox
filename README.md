@@ -141,6 +141,53 @@ npm start
 ### Setting Up Tickets
 Use the `/setup-tickets` command in the desired channel to create the ticket interface. Requires administrator permissions.
 
+## Adding Custom Ticket Categories
+
+To add new ticket categories, follow these steps:
+
+1. Add the category ID to your `.env` file:
+```env
+NEW_CATEGORY_ID=your_discord_category_id
+```
+
+2. Add the category to the `TICKET_CATEGORIES` object in `src/tickets/ticketHandler.ts`:
+```typescript
+const TICKET_CATEGORIES = {
+    // ...existing categories...
+    your_category: process.env.NEW_CATEGORY_ID || "default_id",
+};
+```
+
+3. Add a case to the `getTicketTypeName` function:
+```typescript
+function getTicketTypeName(type: string): string {
+    switch (type) {
+        // ...existing cases...
+        case 'your_category':
+            return 'Your Category Name';
+        default:
+            return 'Support';
+    }
+}
+```
+
+4. The ticket system will automatically:
+- Create channels under your category
+- Generate transcripts
+- Handle permissions
+- Manage ticket lifecycle
+- Support all standard ticket features:
+  - Close button
+  - User info button
+  - Add user button
+  - Ticket transcripts
+
+Note: All tickets will inherit the core functionality including:
+- One ticket per user limit
+- Staff-only controls
+- Transcript generation
+- Permission management
+
 ### Staff Commands
 - `/userinfo` - Display comprehensive user information
 - `/characterinfo` - View character details
