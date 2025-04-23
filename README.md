@@ -97,9 +97,6 @@ GANG_REPORT_TICKET_CATEGORY=changeme
 TEBEX_SUPPORT_TICKET_CATEGORY=changeme
 STAFF_REPORT_TICKET_CATEGORY=changeme
 
-# Channel ID where ticket transcripts will be saved
-TRANSCRIPT_CHANNEL_ID=changeme
-
 # this is used for the mysql connection for the database create a read only user for the database in heidisql 
 MYSQL_HOST=changeme
 MYSQL_PORT=changeme
