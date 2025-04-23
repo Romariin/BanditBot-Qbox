@@ -52,9 +52,6 @@ Create a `.env` file with the following variables:
 TOKEN=changeme
 
 # This is the ID of the role that can use the bots commands that could be harmful or contain sensitive information to users.
-STAFF_ROLE_ID=TOKEN=changeme
-
-# This is the ID of the role that can use the bots commands that could be harmful or contain sensitive information to users.
 STAFF_ROLE_ID=changeme
 
 # This is the ID of the role that will get pinged when a new ticket is created. If not set, it will default to the STAFF_ROLE_ID
@@ -80,39 +77,12 @@ MYSQL_DATABASE=changeme
 # Path to the txAdmin players database JSON file - update this to match your server setup || im unsure how you would do this if you are hosting the bot 
 # on a seperate vps like linux or something like that but if you are hosting it locally on the same vps then this is the path to the txAdmin players database JSON file 
 #commits are welcome to add support for other setups
-TXADMIN_PLAYERS_DB_PATH=c:/Users/61432/Desktop/txData/default/data/playersDB.json
+TXADMIN_PLAYERS_DB_PATH=EMBED_COLOR=changeme
 
 # Custom color for embeds (hex format) - this is the colour of all embeds through out the bot - you can change this to any hex code you want using websites like https://htmlcolorcodes.com/
 # DO NOT INCLUDE THE # OR IT WILL NOT WORK
 # VERY IMPORTANT MAKE SURE YOU INCLUDE THE 0x IN FRONT OF THE HEX CODE AND NOT A HAS TAG OR NO 0x OR IT WILL NOT WORK so 0xhexcode
-EMBED_COLOR=changeme
-
-# This is the ID of the role that will get pinged when a new ticket is created. If not set, it will default to the STAFF_ROLE_ID
-TICKET_PING_ROLE_ID=changeme
-
-# Ticket category IDs - these are the parent categories where tickets will be created
-GENERAL_TICKET_CATEGORY=changeme
-BAN_APPEAL_TICKET_CATEGORY=changeme  ## THIS WILL AUTO SHOW TX BANS IN THE EMBED IF YOU USE TX IF THEIR IS NO DATA IT WONT SHOW ANYTHING
-GANG_REPORT_TICKET_CATEGORY=changeme
-TEBEX_SUPPORT_TICKET_CATEGORY=changeme
-STAFF_REPORT_TICKET_CATEGORY=changeme
-
-# this is used for the mysql connection for the database create a read only user for the database in heidisql 
-MYSQL_HOST=changeme
-MYSQL_PORT=changeme
-MYSQL_USER=changeme
-MYSQL_PASSWORD=changeme
-MYSQL_DATABASE=changeme
-
-# Path to the txAdmin players database JSON file - update this to match your server setup || im unsure how you would do this if you are hosting the bot 
-# on a seperate vps like linux or something like that but if you are hosting it locally on the same vps then this is the path to the txAdmin players database JSON file 
-#commits are welcome to add support for other setups
-TXADMIN_PLAYERS_DB_PATH=c:/Users/61432/Desktop/txData/default/data/playersDB.json
-
-# Custom color for embeds (hex format) - this is the colour of all embeds through out the bot - you can change this to any hex code you want using websites like https://htmlcolorcodes.com/
-# DO NOT INCLUDE THE # OR IT WILL NOT WORK
-# VERY IMPORTANT MAKE SURE YOU INCLUDE THE 0x IN FRONT OF THE HEX CODE AND NOT A HAS TAG OR NO 0x OR IT WILL NOT WORK so 0xhexcode
-EMBED_COLOR=0x1d64e8 #  blue
+EMBED_COLOR=0x1d64e8 # blue defualt
 ```
 
 ## Installation
