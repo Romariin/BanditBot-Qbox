@@ -77,7 +77,8 @@ MYSQL_DATABASE=changeme
 # Path to the txAdmin players database JSON file - update this to match your server setup || im unsure how you would do this if you are hosting the bot 
 # on a seperate vps like linux or something like that but if you are hosting it locally on the same vps then this is the path to the txAdmin players database JSON file 
 #commits are welcome to add support for other setups
-TXADMIN_PLAYERS_DB_PATH=EMBED_COLOR=changeme
+TXADMIN_PLAYERS_DB_PATH=changeme
+## EXAMPLE TXADMIN_PLAYERS_DB_PATH=c:/Users/61432/Desktop/txData/default/data/playersDB.json
 
 # Custom color for embeds (hex format) - this is the colour of all embeds through out the bot - you can change this to any hex code you want using websites like https://htmlcolorcodes.com/
 # DO NOT INCLUDE THE # OR IT WILL NOT WORK
