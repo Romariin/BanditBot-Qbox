@@ -1,5 +1,8 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, Client, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, PermissionFlagsBits, EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, Client, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, PermissionFlagsBits, EmbedBuilder, GuildMember } from "discord.js";
 import { EMBED_COLOR } from "../../utils/constants";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const data = new SlashCommandBuilder()
   .setName("setup-tickets")
@@ -13,6 +16,11 @@ export async function execute(
   await interaction.deferReply({ ephemeral: true });
 
   try {
+    const staffRoleId = process.env.STAFF_ROLE_ID;
+    if (staffRoleId && interaction.member instanceof GuildMember && !interaction.member.roles.cache.has(staffRoleId)) {
+      return interaction.editReply("You need the staff role to use this command.");
+    }
+
     const ticketEmbed = new EmbedBuilder()
       .setTitle("🎫 Support Tickets")
       .setDescription("Select a category from the dropdown menu below to create a support ticket.")
