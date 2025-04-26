@@ -84,6 +84,21 @@ TXADMIN_PLAYERS_DB_PATH=changeme
 # DO NOT INCLUDE THE # OR IT WILL NOT WORK
 # VERY IMPORTANT MAKE SURE YOU INCLUDE THE 0x IN FRONT OF THE HEX CODE AND NOT A HAS TAG OR NO 0x OR IT WILL NOT WORK so 0xhexcode
 EMBED_COLOR=0x1d64e8 # blue defualt
+
+# Required: Role IDs and to add your own custom roles use ROLE_ID_WHATEVERYOURROLENAMEIS=roleid
+ROLE_ID_ANNOUNCEMENTS=changeme
+ROLE_ID_EVENT_ANNOUNCEMENTS=changeme
+ROLE_ID_PATCH_NOTES=changeme
+ROLE_ID_COOL_DUDE=changeme
+
+# Optional: Custom emojis to you will need thos so it knows what emoji to put below the embed to setup a custom emoji make sure the ROLE_EMOJI_WHATEVERYOURROLENAMEI=emoji matches the role id 
+ROLE_EMOJI_ANNOUNCEMENTS=📢
+ROLE_EMOJI_EVENT_ANNOUNCEMENTS=🎉
+ROLE_EMOJI_PATCH_NOTES=📝
+ROLE_EMOJI_COOL_DUDE=😎
+
+# Optional: Custom descriptions IF NOT IT WILL DEFUALT TO Get notified about ROLENAME
+ROLE_DESC_ANNOUNCEMENTS=Get notified about server announcements and news
 ```
 
 ## Installation
