@@ -4,7 +4,8 @@ import {
   PermissionFlagsBits,
   SlashCommandBuilder,
   ChatInputCommandInteraction,
-  Role
+  Role,
+  GuildMember
 } from "discord.js";
 import { EMBED_COLOR } from "../../utils/constants";
 import dotenv from "dotenv";
@@ -30,6 +31,11 @@ export async function execute(
   await interaction.deferReply({ ephemeral: true });
 
   try {
+    const staffRoleId = process.env.STAFF_ROLE_ID;
+    if (staffRoleId && interaction.member instanceof GuildMember && !interaction.member.roles.cache.has(staffRoleId)) {
+      return interaction.editReply("You need the staff role to use this command.");
+    }
+
     const roles = getRoleConfiguration(interaction);
 
     if (Object.keys(roles).length === 0) {
