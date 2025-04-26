@@ -29,6 +29,9 @@ A specialized Discord bot built for FiveM QBox servers, providing comprehensive 
   - Warning system integration
   - Kick history
   - Revocation status tracking
+ 
+    ### Player Management
+- Detailed role reactions setup in the .env and is modular so you can add as many roles to it as you want 
 
 ### Staff Tools
 - Comprehensive moderation tools
