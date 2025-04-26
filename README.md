@@ -30,7 +30,7 @@ A specialized Discord bot built for FiveM QBox servers, providing comprehensive 
   - Kick history
   - Revocation status tracking
  
-    ### Role Reaction Management
+### Role Reaction Management
 - Detailed role reactions setup in the .env and is modular so you can add as many roles to it as you want 
 
 ### Staff Tools
