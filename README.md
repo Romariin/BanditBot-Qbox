@@ -102,6 +102,9 @@ ROLE_EMOJI_COOL_DUDE=😎
 
 # Optional: Custom descriptions IF NOT IT WILL DEFUALT TO Get notified about ROLENAME
 ROLE_DESC_ANNOUNCEMENTS=Get notified about server announcements and news
+
+# for the verified role and verified command you dont have to use this if you dont want to ig 
+ROLE_VERIFIED=changeme
 ```
 
 ## Installation
