@@ -1,63 +1,54 @@
-import fs from "fs";
-import path from "path";
-import {
-  Client,
-  Collection,
-  SlashCommandBuilder,
-  CommandInteraction,
-} from "discord.js";
+import fs from 'node:fs';
+import path from 'node:path';
+import { Collection } from 'discord.js';
+import type { Client, CommandInteraction, SlashCommandBuilder } from 'discord.js';
 
 export interface CommandModule {
-  data: SlashCommandBuilder;
-  execute: (client: Client, interaction: CommandInteraction) => Promise<void>;
+	data: SlashCommandBuilder;
+	execute: (client: Client, interaction: CommandInteraction) => Promise<void>;
 }
 
 export default async function registerCommands(client: Client) {
-  client.commands = new Collection<string, CommandModule>();
-  const commandsRoot = path.join(__dirname, "..", "..", "commands");
-  const groups = fs
-    .readdirSync(commandsRoot, { withFileTypes: true })
-    .filter((dir) => dir.isDirectory())
-    .map((dir) => dir.name)
-    .sort((a, b) => a.localeCompare(b));
+	client.commands = new Collection<string, CommandModule>();
+	const commandsRoot = path.join(__dirname, '..', '..', 'commands');
+	const groups = fs
+		.readdirSync(commandsRoot, { withFileTypes: true })
+		.filter(dir => dir.isDirectory())
+		.map(dir => dir.name)
+		.sort((a, b) => a.localeCompare(b));
 
-  let total = 0;
-  for (const group of groups) {
-    const groupPath = path.join(commandsRoot, group);
-    const files = fs
-      .readdirSync(groupPath)
-      .filter((f) => f.endsWith(".ts") || f.endsWith(".js"))
-      .sort((a, b) => a.localeCompare(b));
+	let total = 0;
+	for (const group of groups) {
+		const groupPath = path.join(commandsRoot, group);
+		const files = fs
+			.readdirSync(groupPath)
+			.filter(f => f.endsWith('.ts') || f.endsWith('.js'))
+			.sort((a, b) => a.localeCompare(b));
 
-    for (const file of files) {
-      const filePath = path.join(groupPath, file);
-      const mod = require(filePath) as Partial<CommandModule>;
+		for (const file of files) {
+			const filePath = path.join(groupPath, file);
+			const mod = require(filePath) as Partial<CommandModule>;
 
-      if (!mod.data || typeof mod.execute !== "function") {
-        console.warn(
-          `[registerCommands] skipping ${group}/${file}: missing data or execute`
-        );
-        continue;
-      }
-      client.commands.set(mod.data.name, {
-        data: mod.data,
-        execute: mod.execute,
-      });
-      total++;
-      console.log(`Loaded command "${mod.data.name}" from ${group}/${file}`);
-    }
-  }
+			if (!mod.data || typeof mod.execute !== 'function') {
+				console.warn(`[registerCommands] skipping ${group}/${file}: missing data or execute`);
+				continue;
+			}
+			client.commands.set(mod.data.name, {
+				data: mod.data,
+				execute: mod.execute
+			});
+			total++;
+			console.log(`Loaded command "${mod.data.name}" from ${group}/${file}`);
+		}
+	}
 
-  console.log(`Cached ${total} command(s) in client.commands so they should work in theory`);
+	console.log(`Cached ${total} command(s) in client.commands so they should work in theory`);
 
-  if (!client.application) {
-    console.warn(
-      "client.application is undefined; are you calling this before `ready`?"
-    );
-  } else {
-    const payload = client.commands.map((cmd) => cmd.data.toJSON());
-    await client.application.commands.set(payload);
-    console.log(`Deployed ${payload.length} slash command(s) to Discord`);
-    console.log(`Bandit almost literally shit himself trying to finish this stupid ass bot`);
-  }
+	if (!client.application) {
+		console.warn('client.application is undefined; are you calling this before `ready`?');
+	} else {
+		const payload = client.commands.map(cmd => cmd.data.toJSON());
+		await client.application.commands.set(payload);
+		console.log(`Deployed ${payload.length} slash command(s) to Discord`);
+	}
 }

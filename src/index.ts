@@ -3,11 +3,13 @@ import { Client, IntentsBitField, Partials } from 'discord.js';
 import eventHandler from './handlers/eventHandler';
 import { initializeDatabase, getPool } from './utils/database';
 
+import fastify from './routes';
+
 dotenv.config();
 
 declare module 'discord.js' {
   interface Client {
-    mysqlConnection: any;
+    mysqlConnection: unknown;
   }
 }
 
@@ -37,9 +39,16 @@ const client: Client = new Client({
       client.mysqlConnection = getPool();
       console.log('MySQL connection pool attached to client');
     }
-    
+
     eventHandler(client);
-    await client.login(process.env.TOKEN!);
+    await client.login(process.env.TOKEN || '');
+    fastify.listen({ port: Number(process.env.PORT) || 5000, host: '0.0.0.0' }, (err, address) => {
+      if (err) {
+        fastify.log.error(err);
+        process.exit(1);
+      }
+      console.log(`Webserver listening at ${address}`);
+    });
   } catch (error) {
     console.error(`Error: ${error}`);
   }
