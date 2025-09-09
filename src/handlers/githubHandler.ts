@@ -24,9 +24,10 @@ interface GitHubPushPayload {
     full_name: string;
     html_url: string;
   };
-  pusher: {
+  sender: {
     name: string;
     email: string;
+    avatar_url: string;
   };
   commits: GitHubCommit[];
   head_commit: GitHubCommit;
@@ -81,15 +82,20 @@ export class GitHubHandler {
     return result;
   }
 
-  private createPushEmbed(commits: GitHubCommit[], repository: any, pusher: any): EmbedBuilder {
+  private createPushEmbed(commits: GitHubCommit[], repository: any, sender: any, ref: string): EmbedBuilder {
+    // Extraire le nom de la branche depuis ref (format: refs/heads/branch-name)
+    const branch = ref.replace('refs/heads/', '');
+    
     const embed = new EmbedBuilder()
       .setColor(EMBED_COLOR)
       .setTimestamp(new Date())
       .setAuthor({ 
-        name: pusher.name, 
-        iconURL: commits[0]?.author.avatar_url || undefined 
+        name: sender.name, 
+        iconURL: commits[0]?.author.avatar_url || undefined,
+        url: sender.html_url
       })
-      .setTitle(`📦 ${commits.length} nouveau${commits.length > 1 ? 'x' : ''} commit${commits.length > 1 ? 's' : ''} sur ${repository.name}`);
+      .setTitle(`**[\`${repository.name}:${branch}\`]** ${commits.length} nouveau${commits.length > 1 ? 'x' : ''} commit${commits.length > 1 ? 's' : ''}`)
+      .setURL(repository.html_url);
 
     let description = '';
 
@@ -102,13 +108,7 @@ export class GitHubHandler {
         const censoredMessage = this.generateCensoredText(commit.message);
         description += `[🔒 \`${shortId}\`](${commit.url}) ${censoredMessage}\n`;
       } else {
-        const changesText = [];
-        if (commit.added.length > 0) changesText.push(`+${commit.added.length}`);
-        if (commit.modified.length > 0) changesText.push(`~${commit.modified.length}`);
-        if (commit.removed.length > 0) changesText.push(`-${commit.removed.length}`);
-        
-        const changes = changesText.length > 0 ? ` (${changesText.join(', ')})` : '';
-        description += `[\`${shortId}\`](${commit.url}) ${commit.message}${changes}\n`;
+        description += `[\`${shortId}\`](${commit.url}) ${commit.message}\n`;
       }
     }
 
@@ -121,22 +121,12 @@ export class GitHubHandler {
 
     if (totalAdded > 0 || totalModified > 0 || totalRemoved > 0) {
       const statsText = [];
-      if (totalAdded > 0) statsText.push(`📈 ${totalAdded} ajouté${totalAdded > 1 ? 's' : ''}`);
-      if (totalModified > 0) statsText.push(`📝 ${totalModified} modifié${totalModified > 1 ? 's' : ''}`);
-      if (totalRemoved > 0) statsText.push(`📉 ${totalRemoved} supprimé${totalRemoved > 1 ? 's' : ''}`);
+      if (totalAdded > 0) statsText.push(`${totalAdded} ajouté${totalAdded > 1 ? 's' : ''}`);
+      if (totalModified > 0) statsText.push(`${totalModified} modifié${totalModified > 1 ? 's' : ''}`);
+      if (totalRemoved > 0) statsText.push(`${totalRemoved} supprimé${totalRemoved > 1 ? 's' : ''}`);
       
-      embed.addFields({ 
-        name: '📊 Changements totaux', 
-        value: statsText.join(' • '), 
-        inline: false 
-      });
+      embed.setFooter({ text: statsText.join(' • ') });
     }
-
-    embed.addFields({ 
-      name: '🏠 Repository', 
-      value: `[${repository.full_name}](${repository.html_url})`, 
-      inline: true 
-    });
 
     return embed;
   }
@@ -161,7 +151,7 @@ export class GitHubHandler {
       }
 
       // Créer un seul embed pour tous les commits
-      const embed = this.createPushEmbed(payload.commits, payload.repository, payload.pusher);
+      const embed = this.createPushEmbed(payload.commits, payload.repository, payload.sender, payload.ref);
       await channel.send({ embeds: [embed] });
 
     } catch (error) {
