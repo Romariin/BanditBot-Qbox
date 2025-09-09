@@ -7,6 +7,7 @@ interface GitHubCommit {
   timestamp: string;
   url: string;
   author: {
+    avatar_url: string;
     name: string;
     username: string;
     email: string;
@@ -80,45 +81,62 @@ export class GitHubHandler {
     return result;
   }
 
-  private createCommitEmbed(commit: GitHubCommit, repository: any, isHidden: boolean = false): EmbedBuilder {
+  private createPushEmbed(commits: GitHubCommit[], repository: any, pusher: any): EmbedBuilder {
     const embed = new EmbedBuilder()
       .setColor(EMBED_COLOR)
-      .setTimestamp(new Date(commit.timestamp));
+      .setTimestamp(new Date())
+      .setAuthor({ 
+        name: pusher.name, 
+        iconURL: commits[0]?.author.avatar_url || undefined 
+      })
+      .setTitle(`📦 ${commits.length} nouveau${commits.length > 1 ? 'x' : ''} commit${commits.length > 1 ? 's' : ''} sur ${repository.name}`);
 
-    if (isHidden) {
-      const censoredMessage = this.generateCensoredText(commit.message);
-      const censoredAuthor = this.generateCensoredText(commit.author.name);
-      const censoredRepo = this.generateCensoredText(repository.name);
+    let description = '';
+
+    // Afficher tous les commits dans la même section
+    for (const commit of commits) {
+      const shortId = commit.id.substring(0, 7);
+      const isHidden = this.isHiddenCommit(commit.message);
       
-      embed
-        .setTitle('🔒 Commit masqué')
-        .setDescription(`\`${censoredMessage}\``)
-        .addFields(
-          { name: '👤 Auteur', value: `\`${censoredAuthor}\``, inline: true },
-          { name: '📁 Repository', value: `\`${censoredRepo}\``, inline: true },
-          { name: '🔗 Lien', value: `\`${this.generateCensoredText('Voir le commit')}\``, inline: true }
-        )
-        .setFooter({ text: 'Commit contient du contenu masqué' });
-    } else {
-      const changesText = [];
-      if (commit.added.length > 0) changesText.push(`+${commit.added.length} ajouté(s)`);
-      if (commit.modified.length > 0) changesText.push(`~${commit.modified.length} modifié(s)`);
-      if (commit.removed.length > 0) changesText.push(`-${commit.removed.length} supprimé(s)`);
-
-      embed
-        .setTitle('📝 Nouveau commit')
-        .setDescription(commit.message)
-        .addFields(
-          { name: '👤 Auteur', value: commit.author.name, inline: true },
-          { name: '🔗 Repository', value: `[${repository.name}](${repository.html_url})`, inline: true }
-        );
-
-      if (changesText.length > 0) {
-        embed.addFields({ name: '📊 Changements', value: changesText.join(' • '), inline: false });
+      if (isHidden) {
+        const censoredMessage = this.generateCensoredText(commit.message);
+        description += `[🔒 \`${shortId}\`](${commit.url}) ${censoredMessage}\n`;
+      } else {
+        const changesText = [];
+        if (commit.added.length > 0) changesText.push(`+${commit.added.length}`);
+        if (commit.modified.length > 0) changesText.push(`~${commit.modified.length}`);
+        if (commit.removed.length > 0) changesText.push(`-${commit.removed.length}`);
+        
+        const changes = changesText.length > 0 ? ` (${changesText.join(', ')})` : '';
+        description += `[\`${shortId}\`](${commit.url}) ${commit.message}${changes}\n`;
       }
-
-      embed.addFields({ name: '🔗 Lien', value: `[Voir le commit](${commit.url})`, inline: false });
     }
+
+    embed.setDescription(description.trim());
+
+    // Calculer les statistiques totales
+    const totalAdded = commits.reduce((sum, commit) => sum + commit.added.length, 0);
+    const totalModified = commits.reduce((sum, commit) => sum + commit.modified.length, 0);
+    const totalRemoved = commits.reduce((sum, commit) => sum + commit.removed.length, 0);
+
+    if (totalAdded > 0 || totalModified > 0 || totalRemoved > 0) {
+      const statsText = [];
+      if (totalAdded > 0) statsText.push(`📈 ${totalAdded} ajouté${totalAdded > 1 ? 's' : ''}`);
+      if (totalModified > 0) statsText.push(`📝 ${totalModified} modifié${totalModified > 1 ? 's' : ''}`);
+      if (totalRemoved > 0) statsText.push(`📉 ${totalRemoved} supprimé${totalRemoved > 1 ? 's' : ''}`);
+      
+      embed.addFields({ 
+        name: '📊 Changements totaux', 
+        value: statsText.join(' • '), 
+        inline: false 
+      });
+    }
+
+    embed.addFields({ 
+      name: '🏠 Repository', 
+      value: `[${repository.full_name}](${repository.html_url})`, 
+      inline: true 
+    });
 
     return embed;
   }
@@ -129,6 +147,12 @@ export class GitHubHandler {
       return;
     }
 
+    // Ignorer les push sans commits
+    if (!payload.commits || payload.commits.length === 0) {
+      console.log('Push sans commits, événement ignoré');
+      return;
+    }
+
     try {
       const channel = await this.client.channels.fetch(this.channelId) as TextChannel;
       if (!channel) {
@@ -136,13 +160,9 @@ export class GitHubHandler {
         return;
       }
 
-      // Traiter chaque commit
-      for (const commit of payload.commits) {
-        const isHidden = this.isHiddenCommit(commit.message);
-        const embed = this.createCommitEmbed(commit, payload.repository, isHidden);
-        
-        await channel.send({ embeds: [embed] });
-      }
+      // Créer un seul embed pour tous les commits
+      const embed = this.createPushEmbed(payload.commits, payload.repository, payload.pusher);
+      await channel.send({ embeds: [embed] });
 
     } catch (error) {
       console.error('Erreur lors de l\'envoi de la notification GitHub:', error);
