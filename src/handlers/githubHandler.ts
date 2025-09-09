@@ -24,10 +24,14 @@ interface GitHubPushPayload {
     full_name: string;
     html_url: string;
   };
-  sender: {
+  pusher: {
     name: string;
     email: string;
+  };
+  sender: {
+    login: string;
     avatar_url: string;
+    html_url: string;
   };
   commits: GitHubCommit[];
   head_commit: GitHubCommit;
@@ -82,7 +86,7 @@ export class GitHubHandler {
     return result;
   }
 
-  private createPushEmbed(commits: GitHubCommit[], repository: any, sender: any, ref: string): EmbedBuilder {
+  private createPushEmbed(commits: GitHubCommit[], repository: any, pusher: any, sender: any, ref: string): EmbedBuilder {
     // Extraire le nom de la branche depuis ref (format: refs/heads/branch-name)
     const branch = ref.replace('refs/heads/', '');
     
@@ -90,8 +94,8 @@ export class GitHubHandler {
       .setColor(EMBED_COLOR)
       .setTimestamp(new Date())
       .setAuthor({ 
-        name: sender.name, 
-        iconURL: commits[0]?.author.avatar_url || undefined,
+        name: pusher.name || sender.login, 
+        iconURL: sender.avatar_url || undefined,
         url: sender.html_url
       })
       .setTitle(`**[\`${repository.name}:${branch}\`]** ${commits.length} nouveau${commits.length > 1 ? 'x' : ''} commit${commits.length > 1 ? 's' : ''}`)
@@ -151,7 +155,7 @@ export class GitHubHandler {
       }
 
       // Créer un seul embed pour tous les commits
-      const embed = this.createPushEmbed(payload.commits, payload.repository, payload.sender, payload.ref);
+      const embed = this.createPushEmbed(payload.commits, payload.repository, payload.pusher, payload.sender, payload.ref);
       await channel.send({ embeds: [embed] });
 
     } catch (error) {
