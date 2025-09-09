@@ -2,12 +2,14 @@ import dotenv from 'dotenv';
 import { Client, IntentsBitField, Partials } from 'discord.js';
 import eventHandler from './handlers/eventHandler';
 import { initializeDatabase, getPool } from './utils/database';
+import { GitHubWebhookServer } from './webhooks/githubWebhook';
 
 dotenv.config();
 
 declare module 'discord.js' {
   interface Client {
     mysqlConnection: any;
+    githubWebhook?: GitHubWebhookServer;
   }
 }
 
@@ -39,6 +41,13 @@ const client: Client = new Client({
     }
     
     eventHandler(client);
+    
+    // Démarrer le serveur webhook GitHub
+    const webhookPort = parseInt(process.env.WEBHOOK_PORT || '3000');
+    const githubWebhook = new GitHubWebhookServer(client, webhookPort);
+    client.githubWebhook = githubWebhook;
+    githubWebhook.start();
+    
     await client.login(process.env.TOKEN!);
   } catch (error) {
     console.error(`Error: ${error}`);

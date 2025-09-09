@@ -29,7 +29,6 @@ const TICKET_CATEGORIES = {
   general: process.env.GENERAL_TICKET_CATEGORY || "1364067273261711411",
   ban_appeal: process.env.BAN_APPEAL_TICKET_CATEGORY || "1364067474542428191",
   gang_report: process.env.GANG_REPORT_TICKET_CATEGORY || "1364067492049190982",
-  tebex_support: process.env.TEBEX_SUPPORT_TICKET_CATEGORY || "1364067512404410520",
   staff_report: process.env.STAFF_REPORT_TICKET_CATEGORY || "1364067539063148604"
 };
 
@@ -378,16 +377,17 @@ async function saveTicketTranscript(channel: TextChannel, client: Client, ticket
     });
     let ticketType = "unknown";
     const channelName = channel.name;
-    if (channelName.includes("general")) {
-      ticketType = "General Support";
-    } else if (channelName.includes("ban_appeal")) {
-      ticketType = "Ban Appeal";
-    } else if (channelName.includes("gang_report")) {
-      ticketType = "Gang Report";
-    } else if (channelName.includes("tebex_support")) {
-      ticketType = "Tebex Support";
-    } else if (channelName.includes("staff_report")) {
-      ticketType = "Staff Report";
+    const typeMap: Record<string, string> = {
+      general: "General Support",
+      ban_appeal: "Ban Appeal",
+      gang_report: "Gang Report",
+      staff_report: "Staff Report"
+    };
+    for (const [key, value] of Object.entries(typeMap)) {
+      if (channelName.includes(key)) {
+      ticketType = value;
+      break;
+      }
     }
     const transcriptEmbed = new EmbedBuilder()
       .setTitle(`Transcript for ${channel.name}`)
@@ -938,8 +938,6 @@ function getTicketTypeName(type: string): string {
       return 'Ban Appeal';
     case 'gang_report':
       return 'Gang Report';
-    case 'tebex_support':
-      return 'Tebex Support';
     case 'staff_report':
       return 'Staff Report';
     default:
